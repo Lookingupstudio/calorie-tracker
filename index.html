@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#0f172a">
+<title>CalTrack – Giorgio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #3b82f6;
+  --blue-light: #eff6ff;
+  --blue-dark: #1d4ed8;
+  --green: #22c55e;
+  --green-light: #f0fdf4;
+  --amber: #f59e0b;
+  --amber-light: #fffbeb;
+  --red: #ef4444;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text2: #64748b;
+  --text3: #94a3b8;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --nav-h: 72px;
+  --font: 'Geist', 'Inter', system-ui, sans-serif;
+  --mono: 'Geist Mono', 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); font-family: var(--font); color: var(--text); overflow: hidden; }
+
+/* APP SHELL */
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* SCREENS */
+.screen { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.screen.active { display: flex; }
+.scroll-area { flex: 1; overflow-y: auto; padding: 0 16px 16px; -webkit-overflow-scrolling: touch; }
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* HEADER */
+.header {
+  padding: 16px 20px 8px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.header-greeting { font-size: 11px; color: var(--text3); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; }
+.header-title { font-size: 22px; font-weight: 500; color: var(--text); margin-top: 2px; line-height: 1.2; }
+.header-date { font-size: 12px; color: var(--text3); margin-top: 3px; font-family: var(--mono); }
+.header-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 600; color: #fff;
+  flex-shrink: 0;
+}
+
+/* BOTTOM NAV */
+.nav {
+  height: var(--nav-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  flex-shrink: 0;
+}
+.nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: none; background: none; cursor: pointer;
+  color: var(--text3); font-size: 10px; font-family: var(--font); font-weight: 500;
+  transition: all 0.15s; min-width: 64px;
+}
+.nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.nav-btn.active { color: var(--blue); background: var(--blue-light); }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+  padding: 16px;
+  margin-top: 12px;
+}
+.card-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+
+/* KCAL RING */
+.ring-wrap { display: flex; justify-content: center; align-items: center; padding: 8px 0; }
+.ring-container { position: relative; width: 160px; height: 160px; }
+.ring-container canvas { position: absolute; top: 0; left: 0; }
+.ring-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.ring-num { font-size: 30px; font-weight: 500; color: var(--text); font-family: var(--mono); line-height: 1; }
+.ring-unit { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.ring-target { font-size: 10px; color: var(--blue); margin-top: 2px; font-family: var(--mono); }
+
+/* MACRO PILLS */
+.macro-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
+.macro-pill { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+.macro-pill .mp-val { font-size: 16px; font-weight: 600; font-family: var(--mono); }
+.macro-pill .mp-label { font-size: 10px; color: var(--text3); margin-top: 2px; font-weight: 500; }
+.macro-pill .mp-bar { height: 3px; border-radius: 2px; margin-top: 6px; }
+
+/* STATS GRID */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.stat-tile { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+.stat-tile .st-label { font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-tile .st-val { font-size: 22px; font-weight: 500; font-family: var(--mono); color: var(--text); margin-top: 4px; }
+.stat-tile .st-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* MEAL LIST */
+.section-head { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 10px; }
+.meal-item {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 13px 14px; margin-bottom: 7px;
+}
+.meal-left .mn { font-size: 14px; font-weight: 500; }
+.meal-left .mm { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.meal-kcal { font-size: 15px; font-weight: 600; font-family: var(--mono); color: var(--blue); }
+.meal-kcal.sport { color: var(--green); }
+
+/* BUTTONS */
+.btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px; margin-top: 10px;
+  background: var(--blue); color: #fff;
+  border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+  font-family: var(--font); cursor: pointer; transition: background 0.15s;
+}
+.btn-primary:active { background: var(--blue-dark); }
+.btn-secondary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px; margin-top: 8px;
+  background: var(--green-light); color: #16a34a;
+  border: 1px solid #bbf7d0; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; font-family: var(--font); cursor: pointer;
+}
+
+/* BAR CHART */
+.bar-wrap { display: flex; align-items: flex-end; gap: 6px; height: 140px; margin-top: 12px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+.bar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; position: relative; }
+.bar-fill {
+  width: 100%; border-radius: 6px 6px 0 0;
+  transition: height 0.6s cubic-bezier(.4,0,.2,1);
+}
+.bar-day { font-size: 9px; font-weight: 500; color: var(--text3); font-family: var(--mono); }
+.bar-val { font-size: 8px; color: var(--text2); font-family: var(--mono); }
+.target-line {
+  position: absolute; left: 0; right: 0; height: 1.5px;
+  background: var(--amber); border-radius: 1px;
+}
+
+/* DONUT */
+.donut-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; }
+.donut-wrap canvas { position: absolute; top: 0; left: 0; }
+.donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.donut-center .dc-num { font-size: 24px; font-weight: 600; font-family: var(--mono); }
+.donut-center .dc-label { font-size: 10px; color: var(--text3); }
+.legend-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; justify-content: center; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 3px; }
+
+/* CALENDAR */
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.cal-header-day { font-size: 9px; font-weight: 600; color: var(--text3); text-align: center; padding: 4px 0; letter-spacing: 0.04em; }
+.cal-day-cell {
+  aspect-ratio: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; border-radius: 8px; cursor: pointer; position: relative;
+}
+.cal-day-cell .cdc-num { font-size: 12px; font-weight: 500; color: var(--text); }
+.cal-day-cell .cdc-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--blue); margin-top: 2px; }
+.cal-day-cell.today .cdc-num { color: var(--blue); font-weight: 700; }
+.cal-day-cell.selected { background: var(--blue-light); }
+.cal-day-cell:hover { background: var(--surface2); }
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.cal-nav span { font-size: 15px; font-weight: 600; }
+.cal-nav-btn { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* FORM */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 6px; }
+.form-input, .form-select {
+  width: 100%; padding: 12px 14px; font-size: 15px;
+  border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font-family: var(--font); outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--blue); }
+.mode-tabs { display: flex; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; gap: 4px; margin-bottom: 16px; }
+.mode-tab { flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; color: var(--text3); transition: all 0.15s; }
+.mode-tab.active { background: var(--surface); color: var(--blue); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.calc-result { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-top: 14px; }
+.calc-item { background: var(--blue-light); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+.calc-item .ci-val { font-size: 14px; font-weight: 700; color: var(--blue); font-family: var(--mono); }
+.calc-item .ci-label { font-size: 9px; color: var(--text3); margin-top: 2px; font-weight: 500; text-transform: uppercase; }
+
+/* SPORT LIST */
+.sport-item { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; }
+.sport-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--green-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sport-icon svg { width: 20px; height: 20px; stroke: #16a34a; }
+.sport-kcal { margin-left: auto; font-size: 14px; font-weight: 700; font-family: var(--mono); color: #16a34a; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: #fff; padding: 10px 20px; border-radius: 50px;
+  font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none;
+  transition: all 0.25s; z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-greeting">Buongiorno Giorgio</div>
+          <div class="header-title">Oggi</div>
+          <div class="header-date">Gio, 21 maggio 2026</div>
+        </div>
+        <div class="header-avatar">G</div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="card">
+        <div class="ring-wrap">
+          <div class="ring-container">
+            <canvas id="homeRing" width="160" height="160"></canvas>
+            <div class="ring-label">
+              <div class="ring-num">1.247</div>
+              <div class="ring-unit">kcal consumate</div>
+              <div class="ring-target">/ 1.950 target</div>
+            </div>
+          </div>
+        </div>
+        <div class="macro-row">
+          <div class="macro-pill">
+            <div class="mp-val" style="color:#3b82f6">48g</div>
+            <div class="mp-label">Grassi</div>
+            <div class="mp-bar" style="background:#3b82f6;width:60%"></div>
+          </div>
+          <div class="macro-pill">
+            <div class="mp-val" style="color:#22c55e">96g</div>
+            <div class="mp-label">Proteine</div>
+            <div class="mp-bar" style="background:#22c55e;width:75%"></div>
+          </div>
+          <div class="macro-pill">
+            <div class="mp-val" style="color:#f59e0b">128g</div>
+            <div class="mp-label">Carbo</div>
+            <div class="mp-bar" style="background:#f59e0b;width:85%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-tile">
+          <div class="st-label">Media sett.</div>
+          <div class="st-val">1.623</div>
+          <div class="st-sub">kcal/giorno</div>
+        </div>
+        <div class="stat-tile">
+          <div class="st-label">Fluttuazione</div>
+          <div class="st-val" style="color:#ef4444">–327</div>
+          <div class="st-sub">vs media sett.</div>
+        </div>
+      </div>
+      <div class="section-head">Pasti di oggi</div>
+      <div class="meal-item">
+        <div class="meal-left"><div class="mn">Colazione</div><div class="mm">Yogurt greco + avena</div></div>
+        <div class="meal-kcal">342</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-left"><div class="mn">Pranzo</div><div class="mm">Petto di pollo 200g + riso 80g</div></div>
+        <div class="meal-kcal">612</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-left"><div class="mn">Spuntino</div><div class="mm">Mandorle 30g</div></div>
+        <div class="meal-kcal">175</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-left"><div class="mn">Corsa 40 min 🏃</div><div class="mm">Attività sportiva</div></div>
+        <div class="meal-kcal sport">–380</div>
+      </div>
+      <button class="btn-primary" onclick="goto('add')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Aggiungi pasto
+      </button>
+      <button class="btn-secondary" onclick="goto('sport')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Registra attività sport
+      </button>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" onclick="goto('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button class="nav-btn" onclick="goto('daily')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Oggi
+      </button>
+      <button class="nav-btn" onclick="goto('weekly')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Settimana
+      </button>
+      <button class="nav-btn" onclick="goto('monthly')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Mese
+      </button>
+    </nav>
+  </div>
+
+  <!-- DAILY -->
+  <div class="screen" id="s-daily">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-greeting">Buongiorno Giorgio</div>
+          <div class="header-title">Riepilogo oggi</div>
+          <div class="header-date">21 maggio 2026</div>
+        </div>
+        <div class="header-avatar">G</div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="card" style="margin-top:12px">
+        <div class="legend-row" style="margin-bottom:14px">
+          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Grassi 35%</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Proteine 31%</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Carbo 34%</div>
+        </div>
+        <div class="donut-wrap">
+          <canvas id="donutChart" width="160" height="160"></canvas>
+          <div class="donut-center">
+            <div class="dc-num">1.247</div>
+            <div class="dc-label">kcal tot</div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="st-label">Consumate</div><div class="st-val">1.247</div><div class="st-sub">kcal</div></div>
+        <div class="stat-tile"><div class="st-label">Rimanenti</div><div class="st-val" style="color:var(--blue)">703</div><div class="st-sub">kcal al target</div></div>
+        <div class="stat-tile"><div class="st-label">Sport</div><div class="st-val" style="color:var(--green)">–380</div><div class="st-sub">kcal bruciate</div></div>
+        <div class="stat-tile"><div class="st-label">Bilancio netto</div><div class="st-val">867</div><div class="st-sub">kcal</div></div>
+      </div>
+      <div class="section-head">Macronutrienti dettaglio</div>
+      <div class="macro-row">
+        <div class="macro-pill"><div class="mp-val" style="color:#3b82f6">48g</div><div class="mp-label">Grassi</div><div class="mp-bar" style="background:#3b82f6;width:60%"></div></div>
+        <div class="macro-pill"><div class="mp-val" style="color:#22c55e">96g</div><div class="mp-label">Proteine</div><div class="mp-bar" style="background:#22c55e;width:75%"></div></div>
+        <div class="macro-pill"><div class="mp-val" style="color:#f59e0b">128g</div><div class="mp-label">Carbo</div><div class="mp-bar" style="background:#f59e0b;width:85%"></div></div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nav-btn active" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
+      <button class="nav-btn" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
+      <button class="nav-btn" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
+    </nav>
+  </div>
+
+  <!-- WEEKLY -->
+  <div class="screen" id="s-weekly">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-greeting">Buongiorno Giorgio</div>
+          <div class="header-title">Settimana</div>
+          <div class="header-date">19–25 maggio 2026</div>
+        </div>
+        <div class="header-avatar">G</div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="card">
+        <div class="card-label">Kcal giornaliere vs target 1950</div>
+        <div class="bar-wrap" id="barChart"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="st-label">Media sett.</div><div class="st-val">1.689</div><div class="st-sub">kcal/giorno</div></div>
+        <div class="stat-tile"><div class="st-label">Vs target</div><div class="st-val" style="color:var(--red)">–261</div><div class="st-sub">kcal diff.</div></div>
+      </div>
+      <div class="section-head">Dettaglio giorni</div>
+      <div class="meal-item"><div class="meal-left"><div class="mn">Lunedì</div><div class="mm">3 pasti registrati</div></div><div class="meal-kcal">1.820</div></div>
+      <div class="meal-item"><div class="meal-left"><div class="mn">Martedì</div><div class="mm">4 pasti — sopra target</div></div><div class="meal-kcal" style="color:var(--red)">2.040</div></div>
+      <div class="meal-item"><div class="meal-left"><div class="mn">Mercoledì</div><div class="mm">3 pasti registrati</div></div><div class="meal-kcal">1.650</div></div>
+      <div class="meal-item"><div class="meal-left"><div class="mn">Giovedì (oggi)</div><div class="mm">3 pasti + corsa</div></div><div class="meal-kcal" style="color:var(--blue)">1.247</div></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nav-btn" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
+      <button class="nav-btn active" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
+      <button class="nav-btn" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
+    </nav>
+  </div>
+
+  <!-- MONTHLY -->
+  <div class="screen" id="s-monthly">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-greeting">Buongiorno Giorgio</div>
+          <div class="header-title">Calendario</div>
+        </div>
+        <div class="header-avatar">G</div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="card" style="margin-top:12px">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span id="monthLabel">Maggio 2026</span>
+          <button class="cal-nav-btn" onclick="changeMonth(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="st-label">Media mensile</div><div class="st-val">1.742</div><div class="st-sub">kcal/giorno</div></div>
+        <div class="stat-tile"><div class="st-label">Giorni tracciati</div><div class="st-val">21 / 21</div><div class="st-sub">completamento</div></div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nav-btn" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
+      <button class="nav-btn" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
+      <button class="nav-btn active" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
+    </nav>
+  </div>
+
+  <!-- ADD MEAL -->
+  <div class="screen" id="s-add">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-greeting">Buongiorno Giorgio</div>
+          <div class="header-title">Aggiungi pasto</div>
+        </div>
+        <button onclick="goto('home')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer">← Indietro</button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="mode-tabs" style="margin-top:12px">
+        <div class="mode-tab active" id="tabA" onclick="switchMode('A')">Dal database</div>
+        <div class="mode-tab" id="tabB" onclick="switchMode('B')">Solo kcal</div>
+      </div>
+      <div id="fA">
+        <div class="form-group">
+          <label class="form-label">Alimento</label>
+          <select class="form-select" id="foodSel" onchange="calc()">
+            <option value="">Seleziona dal database...</option>
+            <option value="165,31,0,3.6">Petto di pollo</option>
+            <option value="352,13,68,3">Riso bianco cotto</option>
+            <option value="59,10,3.6,0.4">Yogurt greco 0%</option>
+            <option value="575,21,22,49">Mandorle</option>
+            <option value="131,5.5,0,11">Uovo intero</option>
+            <option value="389,17,66,6">Avena</option>
+            <option value="234,8,41,4">Pasta cotta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grammi (g)</label>
+          <input class="form-input" type="number" id="grams" placeholder="es. 150" inputmode="numeric" oninput="calc()">
+        </div>
+        <div class="calc-result" id="calcRes" style="display:none">
+          <div class="calc-item"><div class="ci-val" id="rKcal">–</div><div class="ci-label">kcal</div></div>
+          <div class="calc-item"><div class="ci-val" id="rProt" style="color:#16a34a">–</div><div class="ci-label">prot</div></div>
+          <div class="calc-item"><div class="ci-val" id="rCarb" style="color:#d97706">–</div><div class="ci-label">carbo</div></div>
+          <div class="calc-item"><div class="ci-val" id="rFat" style="color:#7c3aed">–</div><div class="ci-label">grassi</div></div>
+        </div>
+        <button class="btn-primary" onclick="saveMeal()">Assegna pasto</button>
+      </div>
+      <div id="fB" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Nome piatto (opzionale)</label>
+          <input class="form-input" type="text" placeholder="es. Pizza margherita">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kcal</label>
+          <input class="form-input" type="number" placeholder="es. 750" inputmode="numeric">
+        </div>
+        <button class="btn-primary" onclick="saveMeal()">Aggiungi pasto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPORT -->
+  <div class="screen" id="s-sport">
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-greeting">Buongiorno Giorgio</div>
+          <div class="header-title">Attività sportiva</div>
+        </div>
+        <button onclick="goto('home')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer">← Indietro</button>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div style="margin-top:12px">
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input class="form-input" type="date" value="2026-05-21">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kcal bruciate</label>
+          <input class="form-input" type="number" placeholder="es. 380" inputmode="numeric">
+        </div>
+        <button class="btn-primary" onclick="saveSport()">Salva attività</button>
+      </div>
+      <div class="section-head" style="margin-top:20px">Storico attività</div>
+      <div class="sport-item">
+        <div class="sport-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M4 17l4-4 2 2 3-5 3 4"/></svg></div>
+        <div><div style="font-size:14px;font-weight:500">Corsa</div><div style="font-size:11px;color:var(--text3)">21 mag 2026</div></div>
+        <div class="sport-kcal">–380 kcal</div>
+      </div>
+      <div class="sport-item">
+        <div class="sport-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="18" cy="18" r="1"/><circle cx="6" cy="6" r="1"/><path d="M7 7l10 10M4 11h3a1 1 0 0 0 1-1V7M20 13h-3a1 1 0 0 0-1 1v3"/></svg></div>
+        <div><div style="font-size:14px;font-weight:500">Ciclismo</div><div style="font-size:11px;color:var(--text3)">19 mag 2026</div></div>
+        <div class="sport-kcal">–510 kcal</div>
+      </div>
+      <div class="sport-item">
+        <div class="sport-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM3 12h5l2-5 4 8 2-3h5"/></svg></div>
+        <div><div style="font-size:14px;font-weight:500">Nuoto</div><div style="font-size:11px;color:var(--text3)">17 mag 2026</div></div>
+        <div class="sport-kcal">–440 kcal</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function goto(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + name).classList.add('active');
+  if (name === 'daily') drawDonut();
+  if (name === 'weekly') drawBars();
+  if (name === 'monthly') renderCal();
+  if (name === 'home') drawRing();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function saveMeal() { toast('Pasto aggiunto ✓'); setTimeout(() => goto('home'), 1600); }
+function saveSport() { toast('Attività salvata ✓'); setTimeout(() => goto('home'), 1600); }
+
+function switchMode(m) {
+  document.getElementById('tabA').classList.toggle('active', m === 'A');
+  document.getElementById('tabB').classList.toggle('active', m === 'B');
+  document.getElementById('fA').style.display = m === 'A' ? '' : 'none';
+  document.getElementById('fB').style.display = m === 'B' ? '' : 'none';
+}
+
+function calc() {
+  const sel = document.getElementById('foodSel').value;
+  const g = parseFloat(document.getElementById('grams').value);
+  const res = document.getElementById('calcRes');
+  if (!sel || !g) { res.style.display = 'none'; return; }
+  const [k, p, c, f] = sel.split(',').map(Number);
+  const x = g / 100;
+  document.getElementById('rKcal').textContent = Math.round(k * x);
+  document.getElementById('rProt').textContent = (p * x).toFixed(1) + 'g';
+  document.getElementById('rCarb').textContent = (c * x).toFixed(1) + 'g';
+  document.getElementById('rFat').textContent = (f * x).toFixed(1) + 'g';
+  res.style.display = 'grid';
+}
+
+function drawRing() {
+  const canvas = document.getElementById('homeRing');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 80, cy = 80, r = 66, lw = 14;
+  const consumed = 1247, target = 1950;
+  const angle = (consumed / target) * 2 * Math.PI;
+  ctx.clearRect(0, 0, 160, 160);
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#eff6ff';
+  ctx.lineWidth = lw;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + angle);
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+}
+
+function drawDonut() {
+  const canvas = document.getElementById('donutChart');
+  if (!canvas || canvas._drawn) return;
+  canvas._drawn = true;
+  const ctx = canvas.getContext('2d');
+  const data = [35, 31, 34];
+  const colors = ['#3b82f6', '#22c55e', '#f59e0b'];
+  const cx = 80, cy = 80, outer = 70, inner = 44;
+  let start = -Math.PI / 2;
+  data.forEach((v, i) => {
+    const sweep = (v / 100) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, outer, start, start + sweep);
+    ctx.closePath();
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+    start += sweep;
+  });
+  ctx.beginPath();
+  ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+}
+
+function drawBars() {
+  const container = document.getElementById('barChart');
+  if (!container || container._drawn) return;
+  container._drawn = true;
+  const days = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+  const vals = [1820, 2040, 1650, 1247, null, null, null];
+  const maxH = 120;
+  const target = 1950;
+  const maxVal = 2400;
+  const targetPct = (target / maxVal) * 100;
+  container.innerHTML = '';
+  days.forEach((d, i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const track = document.createElement('div');
+    track.className = 'bar-track';
+    if (i === 0) {
+      const line = document.createElement('div');
+      line.className = 'target-line';
+      line.style.bottom = targetPct + '%';
+      line.style.left = '0';
+      line.style.right = '-400%';
+      line.style.zIndex = '2';
+      track.appendChild(line);
+    }
+    if (vals[i] !== null) {
+      const fill = document.createElement('div');
+      fill.className = 'bar-fill';
+      const pct = (vals[i] / maxVal) * 100;
+      fill.style.height = pct + '%';
+      fill.style.background = vals[i] > target ? '#fca5a5' : '#93c5fd';
+      fill.style.position = 'relative';
+      fill.style.zIndex = '1';
+      track.appendChild(fill);
+    }
+    const valDiv = document.createElement('div');
+    valDiv.className = 'bar-val';
+    valDiv.textContent = vals[i] ? vals[i] : '–';
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'bar-day';
+    dayDiv.textContent = d;
+    col.appendChild(track);
+    col.appendChild(valDiv);
+    col.appendChild(dayDiv);
+    container.appendChild(col);
+  });
+}
+
+const monthNames = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+let cMonth = 4, cYear = 2026;
+
+function changeMonth(d) {
+  cMonth += d;
+  if (cMonth < 0) { cMonth = 11; cYear--; }
+  if (cMonth > 11) { cMonth = 0; cYear++; }
+  renderCal();
+}
+
+function renderCal() {
+  document.getElementById('monthLabel').textContent = monthNames[cMonth] + ' ' + cYear;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['L','M','M','G','V','S','D'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-header-day';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+  const first = new Date(cYear, cMonth, 1).getDay();
+  const offset = first === 0 ? 6 : first - 1;
+  for (let i = 0; i < offset; i++) grid.appendChild(document.createElement('div'));
+  const total = new Date(cYear, cMonth + 1, 0).getDate();
+  for (let d = 1; d <= total; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day-cell' + (d === 21 && cMonth === 4 ? ' today selected' : '');
+    const hasData = d <= 21 && cMonth === 4;
+    el.innerHTML = '<div class="cdc-num">' + d + '</div>' + (hasData ? '<div class="cdc-dot"></div>' : '');
+    el.onclick = () => {
+      document.querySelectorAll('.cal-day-cell').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    grid.appendChild(el);
+  }
+}
+
+drawRing();
+</script>
+</body>
+</html>
