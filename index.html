@@ -123,6 +123,16 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
 .settings-label { font-size: 14px; font-weight: 500; }
 .settings-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .settings-val { font-size: 14px; font-family: var(--mono); color: var(--blue); font-weight: 600; }
+.search-input { width: 100%; padding: 10px 14px; font-size: 14px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text); font-family: var(--font); outline: none; transition: border-color 0.15s; margin-bottom: 8px; }
+.search-input:focus { border-color: var(--blue); background: var(--surface); }
+.food-list { max-height: 220px; overflow-y: auto; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.food-list::-webkit-scrollbar { display: none; }
+.food-opt { padding: 11px 14px; cursor: pointer; font-size: 14px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: background 0.1s; }
+.food-opt:last-child { border-bottom: none; }
+.food-opt:hover, .food-opt.selected { background: var(--blue-light); }
+.food-opt .fo-name { font-weight: 500; }
+.food-opt .fo-meta { font-size: 11px; color: var(--text3); }
+.sport-estimate { font-size: 12px; color: var(--text3); margin-top: -8px; margin-bottom: 10px; padding: 8px 12px; background: var(--green-light); border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -137,7 +147,7 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
           <div class="header-title">Oggi</div>
           <div class="header-date" id="hDate"></div>
         </div>
-        <div class="header-avatar" onclick="goto('settings')">G</div>
+        <div class="header-avatar" id="hAvatar" onclick="goto('settings')">G</div>
       </div>
     </div>
     <div class="scroll-area">
@@ -167,10 +177,10 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
       </button>
     </div>
     <nav class="nav">
-      <button class="nav-btn active" id="nb-home" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
-      <button class="nav-btn" id="nb-daily" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
-      <button class="nav-btn" id="nb-weekly" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
-      <button class="nav-btn" id="nb-monthly" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
+      <button class="nav-btn active" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nav-btn" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
+      <button class="nav-btn" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
+      <button class="nav-btn" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
     </nav>
   </div>
 
@@ -202,10 +212,10 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
       <div class="macro-row" id="dailyMacros"></div>
     </div>
     <nav class="nav">
-      <button class="nav-btn" id="nb2-home" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
-      <button class="nav-btn active" id="nb2-daily" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
-      <button class="nav-btn" id="nb2-weekly" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
-      <button class="nav-btn" id="nb2-monthly" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
+      <button class="nav-btn" onclick="goto('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nav-btn active" onclick="goto('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Oggi</button>
+      <button class="nav-btn" onclick="goto('weekly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Settimana</button>
+      <button class="nav-btn" onclick="goto('monthly')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mese</button>
     </nav>
   </div>
 
@@ -285,9 +295,12 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
     </div>
     <div class="scroll-area">
       <div class="mode-tabs" style="margin-top:12px">
-        <div class="mode-tab active" id="tabA" onclick="switchMode('A')">Dal database</div>
+        <div class="mode-tab active" id="tabA" onclick="switchMode('A')">Database</div>
         <div class="mode-tab" id="tabB" onclick="switchMode('B')">Solo kcal</div>
+        <div class="mode-tab" id="tabC" onclick="switchMode('C')">Personalizzato</div>
       </div>
+
+      <!-- Tab A: dal database con ricerca -->
       <div id="fA">
         <div class="form-group">
           <label class="form-label">Tipo pasto</label>
@@ -299,22 +312,10 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Alimento</label>
-          <select class="form-select" id="foodSel" onchange="calcMacros()">
-            <option value="">Seleziona dal database...</option>
-            <option value="165,31,0,3.6">Petto di pollo</option>
-            <option value="352,13,68,3">Riso bianco cotto</option>
-            <option value="59,10,3.6,0.4">Yogurt greco 0%</option>
-            <option value="575,21,22,49">Mandorle</option>
-            <option value="131,5.5,0,11">Uovo intero</option>
-            <option value="389,17,66,6">Avena</option>
-            <option value="234,8,41,4">Pasta cotta</option>
-            <option value="271,12,50,2">Pane integrale</option>
-            <option value="89,1.1,23,0.3">Banana</option>
-            <option value="52,0.3,14,0.2">Mela</option>
-            <option value="343,26,0,26">Salmone</option>
-            <option value="49,3.4,5,1.9">Latte intero</option>
-          </select>
+          <label class="form-label">Cerca alimento</label>
+          <input class="search-input" type="text" id="foodSearch" placeholder="es. pollo, pasta, uovo..." oninput="filterFoods()" autocomplete="off">
+          <div class="food-list" id="foodList"></div>
+          <input type="hidden" id="selectedFood">
         </div>
         <div class="form-group">
           <label class="form-label">Grammi (g)</label>
@@ -328,6 +329,8 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
         </div>
         <button class="btn-primary" onclick="saveMealA()">Aggiungi pasto</button>
       </div>
+
+      <!-- Tab B: solo kcal -->
       <div id="fB" style="display:none">
         <div class="form-group">
           <label class="form-label">Tipo pasto</label>
@@ -352,6 +355,40 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
         </div>
         <button class="btn-primary" onclick="saveMealB()">Aggiungi pasto</button>
       </div>
+
+      <!-- Tab C: personalizzato con tutti i macro -->
+      <div id="fC" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Tipo pasto</label>
+          <select class="form-select" id="mealTypeC">
+            <option value="Colazione">Colazione</option>
+            <option value="Pranzo">Pranzo</option>
+            <option value="Cena">Cena</option>
+            <option value="Spuntino">Spuntino</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nome alimento</label>
+          <input class="form-input" type="text" id="mealNameC" placeholder="es. Bistecca di manzo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kcal</label>
+          <input class="form-input" type="number" id="mealKcalC" placeholder="es. 320" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Proteine (g)</label>
+          <input class="form-input" type="number" id="mealProtC" placeholder="es. 28" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Carboidrati (g)</label>
+          <input class="form-input" type="number" id="mealCarbC" placeholder="es. 0" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grassi (g)</label>
+          <input class="form-input" type="number" id="mealFatC" placeholder="es. 18" inputmode="numeric">
+        </div>
+        <button class="btn-primary" onclick="saveMealC()">Aggiungi pasto</button>
+      </div>
     </div>
   </div>
 
@@ -370,7 +407,7 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
       <div style="margin-top:12px">
         <div class="form-group">
           <label class="form-label">Tipo attività</label>
-          <select class="form-select" id="sportType">
+          <select class="form-select" id="sportType" onchange="estimateSportKcal()">
             <option>Corsa</option>
             <option>Ciclismo</option>
             <option>Nuoto</option>
@@ -379,13 +416,16 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
             <option>Calcio</option>
             <option>Tennis</option>
             <option>Yoga</option>
+            <option>Pilates</option>
+            <option>HIIT</option>
             <option>Altro</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Durata (minuti)</label>
-          <input class="form-input" type="number" id="sportDuration" placeholder="es. 45" inputmode="numeric">
+          <input class="form-input" type="number" id="sportDuration" placeholder="es. 45" inputmode="numeric" oninput="estimateSportKcal()">
         </div>
+        <div id="sportEstimate" class="sport-estimate" style="display:none"></div>
         <div class="form-group">
           <label class="form-label">Kcal bruciate</label>
           <input class="form-input" type="number" id="sportKcal" placeholder="es. 380" inputmode="numeric">
@@ -411,11 +451,14 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
     <div class="scroll-area">
       <div class="card" style="margin-top:12px">
         <div class="settings-row">
-          <div><div class="settings-label">Nome</div></div>
-          <div class="settings-val" id="settingName">Giorgio</div>
+          <div><div class="settings-label">Nome</div><div class="settings-sub">Usato nel saluto</div></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="text" id="nameInput" class="form-input" style="width:110px;padding:8px;text-align:center">
+            <button onclick="saveName()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Salva</button>
+          </div>
         </div>
         <div class="settings-row">
-          <div><div class="settings-label">Target calorico giornaliero</div><div class="settings-sub">kcal/giorno</div></div>
+          <div><div class="settings-label">Target calorico</div><div class="settings-sub">kcal/giorno</div></div>
           <div style="display:flex;align-items:center;gap:8px">
             <input type="number" id="targetInput" class="form-input" style="width:90px;padding:8px;text-align:center" inputmode="numeric">
             <button onclick="saveTarget()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Salva</button>
@@ -437,6 +480,86 @@ html, body { height: 100%; background: var(--bg); font-family: var(--font); colo
 <div class="toast" id="toast"></div>
 
 <script>
+// ====== FOOD DATABASE ======
+const FOODS = [
+  // Carni e proteine
+  { name: 'Petto di pollo', k:165, p:31, c:0, f:3.6 },
+  { name: 'Petto di tacchino', k:157, p:30, c:0, f:3.2 },
+  { name: 'Coscia di pollo (senza pelle)', k:184, p:24, c:0, f:9 },
+  { name: 'Manzo magro (macinato)', k:215, p:26, c:0, f:12 },
+  { name: 'Bistecca di manzo', k:271, p:26, c:0, f:18 },
+  { name: 'Maiale magro (lonza)', k:182, p:22, c:0, f:10 },
+  { name: 'Prosciutto cotto', k:137, p:18, c:1, f:6.5 },
+  { name: 'Prosciutto crudo', k:268, p:25, c:0, f:18 },
+  { name: 'Bresaola', k:151, p:32, c:0, f:2 },
+  { name: 'Mortadella', k:311, p:14, c:2, f:27 },
+  { name: 'Salmone', k:208, p:20, c:0, f:13 },
+  { name: 'Tonno in scatola (al naturale)', k:116, p:26, c:0, f:1 },
+  { name: 'Merluzzo', k:82, p:18, c:0, f:0.7 },
+  { name: 'Gamberi', k:99, p:21, c:0, f:1.1 },
+  { name: 'Uovo intero', k:155, p:13, c:1.1, f:11 },
+  { name: 'Albume d\'uovo', k:52, p:11, c:0.7, f:0.2 },
+  // Latticini
+  { name: 'Latte intero', k:61, p:3.2, c:4.8, f:3.3 },
+  { name: 'Latte scremato', k:35, p:3.4, c:5, f:0.1 },
+  { name: 'Yogurt greco 0%', k:59, p:10, c:3.6, f:0.4 },
+  { name: 'Yogurt intero', k:97, p:3.5, c:4.7, f:7 },
+  { name: 'Ricotta', k:174, p:11, c:3, f:13 },
+  { name: 'Mozzarella', k:280, p:17, c:2, f:22 },
+  { name: 'Parmigiano Reggiano', k:431, p:33, c:0, f:33 },
+  { name: 'Emmental', k:382, p:28, c:1.5, f:29 },
+  { name: 'Feta', k:264, p:14, c:4, f:21 },
+  // Cereali e carboidrati
+  { name: 'Riso bianco cotto', k:130, p:2.7, c:28, f:0.3 },
+  { name: 'Riso integrale cotto', k:112, p:2.6, c:23, f:0.9 },
+  { name: 'Pasta cotta', k:157, p:5.8, c:31, f:0.9 },
+  { name: 'Pasta integrale cotta', k:148, p:5.5, c:28, f:1.3 },
+  { name: 'Pane bianco', k:265, p:9, c:50, f:3.2 },
+  { name: 'Pane integrale', k:246, p:13, c:41, f:3.5 },
+  { name: 'Avena (fiocchi)', k:389, p:17, c:66, f:7 },
+  { name: 'Farro cotto', k:127, p:5, c:26, f:0.7 },
+  { name: 'Quinoa cotta', k:120, p:4.4, c:22, f:1.9 },
+  { name: 'Couscous cotto', k:112, p:3.8, c:23, f:0.2 },
+  { name: 'Patate bollite', k:87, p:1.9, c:20, f:0.1 },
+  { name: 'Patate dolci', k:86, p:1.6, c:20, f:0.1 },
+  // Verdure
+  { name: 'Spinaci crudi', k:23, p:2.9, c:3.6, f:0.4 },
+  { name: 'Broccoli', k:34, p:2.8, c:7, f:0.4 },
+  { name: 'Zucchine', k:17, p:1.2, c:3.1, f:0.3 },
+  { name: 'Carote', k:41, p:0.9, c:10, f:0.2 },
+  { name: 'Pomodori', k:18, p:0.9, c:3.9, f:0.2 },
+  { name: 'Peperoni', k:31, p:1, c:6, f:0.3 },
+  { name: 'Cetrioli', k:15, p:0.7, c:3.6, f:0.1 },
+  { name: 'Lattuga', k:15, p:1.4, c:2.9, f:0.2 },
+  { name: 'Funghi champignon', k:22, p:3.1, c:3.3, f:0.3 },
+  { name: 'Cipolla', k:40, p:1.1, c:9, f:0.1 },
+  // Frutta
+  { name: 'Banana', k:89, p:1.1, c:23, f:0.3 },
+  { name: 'Mela', k:52, p:0.3, c:14, f:0.2 },
+  { name: 'Arancia', k:47, p:0.9, c:12, f:0.1 },
+  { name: 'Kiwi', k:61, p:1.1, c:15, f:0.5 },
+  { name: 'Fragole', k:32, p:0.7, c:7.7, f:0.3 },
+  { name: 'Uva', k:69, p:0.7, c:18, f:0.2 },
+  { name: 'Pera', k:57, p:0.4, c:15, f:0.1 },
+  { name: 'Ananas', k:50, p:0.5, c:13, f:0.1 },
+  { name: 'Avocado', k:160, p:2, c:9, f:15 },
+  // Legumi
+  { name: 'Lenticchie cotte', k:116, p:9, c:20, f:0.4 },
+  { name: 'Ceci cotti', k:164, p:8.9, c:27, f:2.6 },
+  { name: 'Fagioli borlotti cotti', k:130, p:8.7, c:23, f:0.5 },
+  { name: 'Tofu', k:76, p:8, c:1.9, f:4.8 },
+  // Grassi e frutta secca
+  { name: 'Mandorle', k:579, p:21, c:22, f:50 },
+  { name: 'Noci', k:654, p:15, c:14, f:65 },
+  { name: 'Anacardi', k:553, p:18, c:30, f:44 },
+  { name: 'Burro di arachidi', k:588, p:25, c:20, f:50 },
+  { name: 'Olio d\'oliva', k:884, p:0, c:0, f:100 },
+  { name: 'Burro', k:717, p:0.9, c:0.1, f:81 },
+];
+
+// Sport kcal/min estimate (per 75kg avg)
+const SPORT_MET = { 'Corsa':10, 'Ciclismo':8, 'Nuoto':9, 'Palestra':7, 'Camminata':5, 'Calcio':9, 'Tennis':8, 'Yoga':3, 'Pilates':4, 'HIIT':12, 'Altro':6 };
+
 // ====== DATA LAYER ======
 const DB = {
   get() {
@@ -457,45 +580,36 @@ const DAYS_IT = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 const DAYS_FULL = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 
 function uid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
-
 function fmtDate(isoDate) {
   const d = new Date(isoDate + 'T12:00:00');
   return DAYS_FULL[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
 }
-
-function fmtNum(n) { return n.toLocaleString('it-IT'); }
-
+function fmtNum(n) { return Math.round(n).toLocaleString('it-IT'); }
 function dayTotals(day) {
-  const meals = day.meals || [];
-  const sport = day.sport || [];
-  const kcal = meals.reduce((s, m) => s + (m.kcal || 0), 0);
-  const prot = meals.reduce((s, m) => s + (m.prot || 0), 0);
-  const carb = meals.reduce((s, m) => s + (m.carb || 0), 0);
-  const fat = meals.reduce((s, m) => s + (m.fat || 0), 0);
-  const sportKcal = sport.reduce((s, a) => s + (a.kcal || 0), 0);
+  const meals = day.meals || [], sport = day.sport || [];
+  const kcal = meals.reduce((s,m) => s+(m.kcal||0), 0);
+  const prot = meals.reduce((s,m) => s+(m.prot||0), 0);
+  const carb = meals.reduce((s,m) => s+(m.carb||0), 0);
+  const fat  = meals.reduce((s,m) => s+(m.fat||0), 0);
+  const sportKcal = sport.reduce((s,a) => s+(a.kcal||0), 0);
   return { kcal, prot, carb, fat, sportKcal, net: kcal - sportKcal };
 }
-
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
 }
-
 function greeting() {
   const h = new Date().getHours();
-  if (h < 12) return 'Buongiorno';
-  if (h < 18) return 'Buon pomeriggio';
-  return 'Buonasera';
+  return h < 12 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera';
 }
 
 // ====== NAVIGATION ======
 const SCREENS = ['home','daily','weekly','monthly','add','sport','settings'];
-
 function goto(name) {
   SCREENS.forEach(s => {
-    const el = document.getElementById('s-' + s);
+    const el = document.getElementById('s-'+s);
     if (el) el.classList.toggle('active', s === name);
   });
   if (name === 'home') renderHome();
@@ -512,16 +626,15 @@ function drawRing(canvasId, consumed, target) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const cx = 80, cy = 80, r = 66, lw = 14;
-  const pct = Math.min(consumed / target, 1);
-  const angle = pct * 2 * Math.PI;
-  ctx.clearRect(0, 0, 160, 160);
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-  ctx.strokeStyle = '#eff6ff'; ctx.lineWidth = lw; ctx.stroke();
+  const cx=80, cy=80, r=66, lw=14;
+  const pct = Math.min(consumed/target, 1);
+  ctx.clearRect(0,0,160,160);
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.strokeStyle='#eff6ff'; ctx.lineWidth=lw; ctx.stroke();
   if (consumed > 0) {
-    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + angle);
-    ctx.strokeStyle = consumed > target ? '#ef4444' : '#3b82f6';
-    ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+pct*2*Math.PI);
+    ctx.strokeStyle = consumed>target ? '#ef4444' : '#3b82f6';
+    ctx.lineWidth=lw; ctx.lineCap='round'; ctx.stroke();
   }
 }
 
@@ -530,28 +643,27 @@ function drawDonut(canvasId, prot, carb, fat) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, 160, 160);
-  const total = prot + carb + fat;
-  if (total === 0) {
-    ctx.beginPath(); ctx.arc(80, 80, 70, 0, 2 * Math.PI);
-    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 20; ctx.stroke();
+  ctx.clearRect(0,0,160,160);
+  const total = prot+carb+fat;
+  if (total===0) {
+    ctx.beginPath(); ctx.arc(80,80,70,0,2*Math.PI);
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=20; ctx.stroke();
     return;
   }
-  const data = [fat * 9, prot * 4, carb * 4];
-  const colors = ['#3b82f6', '#22c55e', '#f59e0b'];
-  const sum = data.reduce((a, b) => a + b, 0);
-  let start = -Math.PI / 2;
-  const outer = 70, inner = 44;
-  data.forEach((v, i) => {
-    if (v === 0) return;
-    const sweep = (v / sum) * 2 * Math.PI;
-    ctx.beginPath(); ctx.moveTo(80, 80);
-    ctx.arc(80, 80, outer, start, start + sweep);
-    ctx.closePath(); ctx.fillStyle = colors[i]; ctx.fill();
+  const data = [fat*9, prot*4, carb*4];
+  const colors = ['#3b82f6','#22c55e','#f59e0b'];
+  const sum = data.reduce((a,b)=>a+b,0);
+  let start = -Math.PI/2;
+  data.forEach((v,i) => {
+    if (v===0) return;
+    const sweep = (v/sum)*2*Math.PI;
+    ctx.beginPath(); ctx.moveTo(80,80);
+    ctx.arc(80,80,70,start,start+sweep);
+    ctx.closePath(); ctx.fillStyle=colors[i]; ctx.fill();
     start += sweep;
   });
-  ctx.beginPath(); ctx.arc(80, 80, inner, 0, 2 * Math.PI);
-  ctx.fillStyle = '#ffffff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(80,80,44,0,2*Math.PI);
+  ctx.fillStyle='#ffffff'; ctx.fill();
 }
 
 // ====== HOME ======
@@ -560,20 +672,19 @@ function renderHome() {
   const day = DB.getDay(TODAY);
   const t = dayTotals(day);
   const target = settings.target || 1950;
+  const name = settings.name || 'Giorgio';
 
-  // header
-  document.querySelectorAll('#hGreeting').forEach(el => el.textContent = greeting() + ' ' + (settings.name || 'Giorgio'));
+  document.getElementById('hGreeting').textContent = greeting() + ' ' + name;
   document.getElementById('hDate').textContent = fmtDate(TODAY);
+  document.getElementById('hAvatar').textContent = name.charAt(0).toUpperCase();
   document.getElementById('homeKcal').textContent = fmtNum(t.kcal);
   document.getElementById('homeTarget').textContent = '/ ' + fmtNum(target) + ' target';
   drawRing('homeRing', t.kcal, target);
 
-  // macros
-  const macroEl = document.getElementById('homeMacros');
-  const protTarget = Math.round(target * 0.30 / 4);
-  const carbTarget = Math.round(target * 0.40 / 4);
-  const fatTarget = Math.round(target * 0.30 / 9);
-  macroEl.innerHTML = `
+  const protTarget = Math.round(target*0.30/4);
+  const carbTarget = Math.round(target*0.40/4);
+  const fatTarget  = Math.round(target*0.30/9);
+  document.getElementById('homeMacros').innerHTML = `
     <div class="macro-pill">
       <div class="mp-val" style="color:#3b82f6">${t.fat.toFixed(0)}g</div>
       <div class="mp-label">Grassi</div>
@@ -590,31 +701,29 @@ function renderHome() {
       <div class="mp-bar-track"><div class="mp-bar" style="background:#f59e0b;width:${Math.min(100,(t.carb/carbTarget)*100)}%"></div></div>
     </div>`;
 
-  // stats
   const weekDays = getLast7Days();
-  const weekVals = weekDays.map(d => { const day = DB.getDay(d); return day.meals.length > 0 ? dayTotals(day).kcal : null; });
-  const trackedVals = weekVals.filter(v => v !== null);
-  const weekAvg = trackedVals.length > 0 ? Math.round(trackedVals.reduce((a,b)=>a+b,0)/trackedVals.length) : 0;
-  const diff = weekAvg > 0 ? t.kcal - weekAvg : 0;
+  const weekVals = weekDays.map(d => { const wd = DB.getDay(d); return wd.meals.length>0 ? dayTotals(wd).kcal : null; });
+  const tracked = weekVals.filter(v=>v!==null);
+  const weekAvg = tracked.length>0 ? Math.round(tracked.reduce((a,b)=>a+b,0)/tracked.length) : 0;
+  const diff = weekAvg>0 ? t.kcal-weekAvg : 0;
   document.getElementById('homeStats').innerHTML = `
     <div class="stat-tile"><div class="st-label">Media sett.</div><div class="st-val">${fmtNum(weekAvg)}</div><div class="st-sub">kcal/giorno</div></div>
-    <div class="stat-tile"><div class="st-label">vs media</div><div class="st-val" style="color:${diff > 0 ? 'var(--red)' : 'var(--green)'}">${diff > 0 ? '+' : ''}${fmtNum(diff)}</div><div class="st-sub">kcal oggi</div></div>`;
+    <div class="stat-tile"><div class="st-label">vs media</div><div class="st-val" style="color:${diff>0?'var(--red)':'var(--green)'}">${diff>0?'+':''}${fmtNum(diff)}</div><div class="st-sub">kcal oggi</div></div>`;
 
-  // meals list
   const mealsEl = document.getElementById('homeMeals');
-  const allItems = [...(day.meals || []).map(m => ({...m, isSport: false})), ...(day.sport || []).map(s => ({...s, isSport: true}))];
-  if (allItems.length === 0) {
-    mealsEl.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Nessun pasto registrato oggi</div>`;
+  const allItems = [...(day.meals||[]).map(m=>({...m,isSport:false})), ...(day.sport||[]).map(s=>({...s,isSport:true}))];
+  if (allItems.length===0) {
+    mealsEl.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Nessun pasto registrato oggi</div>`;
   } else {
     mealsEl.innerHTML = allItems.map(item => `
       <div class="meal-item">
         <div class="meal-left">
-          <div class="mn">${item.isSport ? '🏃 ' + item.name : item.type}</div>
-          <div class="mm">${item.isSport ? item.duration + ' min' : item.name}</div>
+          <div class="mn">${item.isSport ? '🏃 '+item.name : item.type}</div>
+          <div class="mm">${item.isSport ? item.duration+' min' : item.name}</div>
         </div>
         <div class="meal-right">
-          <div class="meal-kcal ${item.isSport ? 'sport' : ''}">${item.isSport ? '–' : ''}${fmtNum(item.kcal)}</div>
-          <button class="del-btn" onclick="${item.isSport ? 'delSport' : 'delMeal'}('${item.id}')">
+          <div class="meal-kcal ${item.isSport?'sport':''}">${item.isSport?'–':''}${fmtNum(item.kcal)}</div>
+          <button class="del-btn" onclick="${item.isSport?'delSport':'delMeal'}('${item.id}','${TODAY}')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
           </button>
         </div>
@@ -629,28 +738,24 @@ function renderDaily() {
   const target = DB.settings().target || 1950;
   document.getElementById('dDate').textContent = fmtDate(TODAY);
   document.getElementById('dailyKcalCenter').textContent = fmtNum(t.kcal);
-
-  const totalMacroKcal = t.prot * 4 + t.carb * 4 + t.fat * 9;
-  const pProt = totalMacroKcal > 0 ? Math.round((t.prot * 4 / totalMacroKcal) * 100) : 0;
-  const pCarb = totalMacroKcal > 0 ? Math.round((t.carb * 4 / totalMacroKcal) * 100) : 0;
-  const pFat = 100 - pProt - pCarb;
-
+  const totalMacroKcal = t.prot*4+t.carb*4+t.fat*9;
+  const pProt = totalMacroKcal>0 ? Math.round((t.prot*4/totalMacroKcal)*100) : 0;
+  const pCarb = totalMacroKcal>0 ? Math.round((t.carb*4/totalMacroKcal)*100) : 0;
+  const pFat  = 100-pProt-pCarb;
   document.getElementById('dailyLegend').innerHTML = `
     <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Grassi ${pFat}%</div>
     <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Proteine ${pProt}%</div>
     <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Carbo ${pCarb}%</div>`;
   drawDonut('donutChart', t.prot, t.carb, t.fat);
-
   const remaining = target - t.net;
   document.getElementById('dailyStats').innerHTML = `
     <div class="stat-tile"><div class="st-label">Consumate</div><div class="st-val">${fmtNum(t.kcal)}</div><div class="st-sub">kcal</div></div>
     <div class="stat-tile"><div class="st-label">Rimanenti</div><div class="st-val" style="color:${remaining<0?'var(--red)':'var(--blue)'}">${fmtNum(remaining)}</div><div class="st-sub">al target</div></div>
     <div class="stat-tile"><div class="st-label">Sport</div><div class="st-val" style="color:var(--green)">–${fmtNum(t.sportKcal)}</div><div class="st-sub">kcal bruciate</div></div>
     <div class="stat-tile"><div class="st-label">Bilancio netto</div><div class="st-val">${fmtNum(t.net)}</div><div class="st-sub">kcal</div></div>`;
-
-  const protTarget = Math.round(target * 0.30 / 4);
-  const carbTarget = Math.round(target * 0.40 / 4);
-  const fatTarget = Math.round(target * 0.30 / 9);
+  const protTarget = Math.round(target*0.30/4);
+  const carbTarget = Math.round(target*0.40/4);
+  const fatTarget  = Math.round(target*0.30/9);
   document.getElementById('dailyMacros').innerHTML = `
     <div class="macro-pill">
       <div class="mp-val" style="color:#3b82f6">${t.fat.toFixed(1)}g</div>
@@ -672,8 +777,8 @@ function renderDaily() {
 // ====== WEEKLY ======
 function getLast7Days() {
   const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
+  for (let i=6; i>=0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
     days.push(d.toISOString().split('T')[0]);
   }
   return days;
@@ -682,39 +787,36 @@ function getLast7Days() {
 function renderWeekly() {
   const target = DB.settings().target || 1950;
   const days = getLast7Days();
-  const vals = days.map(d => { const day = DB.getDay(d); return day.meals.length > 0 ? dayTotals(day).kcal : null; });
-  const trackedVals = vals.filter(v => v !== null);
-  const avg = trackedVals.length > 0 ? Math.round(trackedVals.reduce((a,b)=>a+b,0)/trackedVals.length) : 0;
-  const diff = avg - target;
+  const vals = days.map(d => { const wd=DB.getDay(d); return wd.meals.length>0 ? dayTotals(wd).kcal : null; });
+  const tracked = vals.filter(v=>v!==null);
+  const avg = tracked.length>0 ? Math.round(tracked.reduce((a,b)=>a+b,0)/tracked.length) : 0;
+  const diff = avg-target;
+  const start=new Date(days[0]), end=new Date(days[6]);
+  document.getElementById('wRange').textContent = start.getDate()+'–'+end.getDate()+' '+MONTHS[end.getMonth()];
+  document.getElementById('wTargetLabel').textContent = 'Kcal giornaliere vs target '+fmtNum(target);
 
-  const start = new Date(days[0]); const end = new Date(days[6]);
-  document.getElementById('wRange').textContent = start.getDate() + '–' + end.getDate() + ' ' + MONTHS[end.getMonth()];
-  document.getElementById('wTargetLabel').textContent = 'Kcal giornaliere vs target ' + fmtNum(target);
-
-  // bar chart
   const container = document.getElementById('barChart');
   container.innerHTML = '';
-  const maxVal = Math.max(target * 1.3, ...vals.filter(Boolean), 1);
-  const targetPct = (target / maxVal) * 100;
-  days.forEach((date, i) => {
-    const d = new Date(date + 'T12:00:00');
-    const col = document.createElement('div'); col.className = 'bar-col';
-    const track = document.createElement('div'); track.className = 'bar-track';
-    if (i === 0) {
-      const line = document.createElement('div'); line.className = 'target-line';
-      line.style.bottom = targetPct + '%'; line.style.left = '0'; line.style.right = '-400%'; line.style.zIndex = '2';
+  const maxVal = Math.max(target*1.3, ...vals.filter(Boolean), 1);
+  const targetPct = (target/maxVal)*100;
+  days.forEach((date,i) => {
+    const d = new Date(date+'T12:00:00');
+    const col = document.createElement('div'); col.className='bar-col';
+    const track = document.createElement('div'); track.className='bar-track';
+    if (i===0) {
+      const line=document.createElement('div'); line.className='target-line';
+      line.style.bottom=targetPct+'%'; line.style.left='0'; line.style.right='-400%'; line.style.zIndex='2';
       track.appendChild(line);
     }
-    if (vals[i] !== null) {
-      const fill = document.createElement('div'); fill.className = 'bar-fill';
-      const pct = (vals[i] / maxVal) * 100;
-      fill.style.height = pct + '%';
-      fill.style.background = vals[i] > target ? '#fca5a5' : '#93c5fd';
-      fill.style.position = 'relative'; fill.style.zIndex = '1';
+    if (vals[i]!==null) {
+      const fill=document.createElement('div'); fill.className='bar-fill';
+      fill.style.height=(vals[i]/maxVal*100)+'%';
+      fill.style.background=vals[i]>target?'#fca5a5':'#93c5fd';
+      fill.style.position='relative'; fill.style.zIndex='1';
       track.appendChild(fill);
     }
-    const valDiv = document.createElement('div'); valDiv.className = 'bar-val'; valDiv.textContent = vals[i] ? vals[i] : '–';
-    const dayDiv = document.createElement('div'); dayDiv.className = 'bar-day'; dayDiv.textContent = DAYS_IT[d.getDay()];
+    const valDiv=document.createElement('div'); valDiv.className='bar-val'; valDiv.textContent=vals[i]?vals[i]:'–';
+    const dayDiv=document.createElement('div'); dayDiv.className='bar-day'; dayDiv.textContent=DAYS_IT[d.getDay()];
     col.appendChild(track); col.appendChild(valDiv); col.appendChild(dayDiv);
     container.appendChild(col);
   });
@@ -723,130 +825,148 @@ function renderWeekly() {
     <div class="stat-tile"><div class="st-label">Media sett.</div><div class="st-val">${fmtNum(avg)}</div><div class="st-sub">kcal/giorno</div></div>
     <div class="stat-tile"><div class="st-label">Vs target</div><div class="st-val" style="color:${diff>0?'var(--red)':'var(--green)'}">${diff>0?'+':''}${fmtNum(diff)}</div><div class="st-sub">kcal diff.</div></div>`;
 
-  const wDays = document.getElementById('weeklyDays');
-  wDays.innerHTML = days.map((date, i) => {
-    const d = new Date(date + 'T12:00:00');
-    const day = DB.getDay(date);
-    const mCount = day.meals.length;
-    const kcal = vals[i];
-    const isToday = date === TODAY;
+  document.getElementById('weeklyDays').innerHTML = days.map((date,i) => {
+    const d=new Date(date+'T12:00:00');
+    const wd=DB.getDay(date);
     return `<div class="meal-item">
       <div class="meal-left">
-        <div class="mn">${DAYS_FULL[d.getDay()]}${isToday?' (oggi)':''}</div>
-        <div class="mm">${mCount > 0 ? mCount + ' pasti registrati' : 'Nessun dato'}</div>
+        <div class="mn">${DAYS_FULL[d.getDay()]}${date===TODAY?' (oggi)':''}</div>
+        <div class="mm">${wd.meals.length>0 ? wd.meals.length+' pasti registrati' : 'Nessun dato'}</div>
       </div>
-      <div class="meal-kcal" style="color:${kcal===null?'var(--text3)':kcal>target?'var(--red)':'var(--blue)'}">${kcal!==null?fmtNum(kcal):'–'}</div>
+      <div class="meal-kcal" style="color:${vals[i]===null?'var(--text3)':vals[i]>target?'var(--red)':'var(--blue)'}">${vals[i]!==null?fmtNum(vals[i]):'–'}</div>
     </div>`;
   }).join('');
 }
 
 // ====== MONTHLY ======
-let cMonth = new Date().getMonth();
-let cYear = new Date().getFullYear();
-
+let cMonth=new Date().getMonth(), cYear=new Date().getFullYear();
 function changeMonth(d) {
-  cMonth += d;
-  if (cMonth < 0) { cMonth = 11; cYear--; }
-  if (cMonth > 11) { cMonth = 0; cYear++; }
+  cMonth+=d;
+  if (cMonth<0) { cMonth=11; cYear--; }
+  if (cMonth>11) { cMonth=0; cYear++; }
   renderMonthly();
 }
 
 function renderMonthly() {
-  document.getElementById('monthLabel').textContent = MONTHS[cMonth] + ' ' + cYear;
-  const db = DB.get();
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
+  document.getElementById('monthLabel').textContent = MONTHS[cMonth]+' '+cYear;
+  const db=DB.get();
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
   ['L','M','M','G','V','S','D'].forEach(d => {
-    const el = document.createElement('div'); el.className = 'cal-header-day'; el.textContent = d; grid.appendChild(el);
+    const el=document.createElement('div'); el.className='cal-header-day'; el.textContent=d; grid.appendChild(el);
   });
-  const first = new Date(cYear, cMonth, 1).getDay();
-  const offset = first === 0 ? 6 : first - 1;
-  for (let i = 0; i < offset; i++) grid.appendChild(document.createElement('div'));
-  const total = new Date(cYear, cMonth + 1, 0).getDate();
-  const today = new Date();
-  let monthKcals = [], trackedDays = 0;
-
-  for (let day = 1; day <= total; day++) {
-    const mm = String(cMonth + 1).padStart(2, '0');
-    const dd = String(day).padStart(2, '0');
-    const dateStr = `${cYear}-${mm}-${dd}`;
-    const dayData = db.days[dateStr];
-    const hasData = dayData && dayData.meals && dayData.meals.length > 0;
-    const isToday = dateStr === TODAY;
-    const el = document.createElement('div');
-    el.className = 'cal-day-cell' + (isToday ? ' today' : '');
-    el.innerHTML = `<div class="cdc-num">${day}</div>${hasData ? '<div class="cdc-dot"></div>' : ''}`;
+  const first=new Date(cYear,cMonth,1).getDay();
+  const offset=first===0?6:first-1;
+  for(let i=0;i<offset;i++) grid.appendChild(document.createElement('div'));
+  const total=new Date(cYear,cMonth+1,0).getDate();
+  let monthKcals=[], trackedDays=0;
+  for(let day=1;day<=total;day++) {
+    const mm=String(cMonth+1).padStart(2,'0'), dd=String(day).padStart(2,'0');
+    const dateStr=`${cYear}-${mm}-${dd}`;
+    const dayData=db.days[dateStr];
+    const hasData=dayData&&dayData.meals&&dayData.meals.length>0;
+    const el=document.createElement('div');
+    el.className='cal-day-cell'+(dateStr===TODAY?' today':'');
+    el.innerHTML=`<div class="cdc-num">${day}</div>${hasData?'<div class="cdc-dot"></div>':''}`;
     if (hasData) {
-      const k = dayTotals(dayData).kcal;
+      const k=dayTotals(dayData).kcal;
       monthKcals.push(k); trackedDays++;
-      el.onclick = () => showCalDay(dateStr, day);
+      el.onclick=()=>showCalDay(dateStr,day);
     }
     grid.appendChild(el);
   }
-
-  const monthAvg = monthKcals.length > 0 ? Math.round(monthKcals.reduce((a,b)=>a+b,0)/monthKcals.length) : 0;
-  document.getElementById('monthlyStats').innerHTML = `
-    <div class="stat-tile"><div class="st-label">Media mensile</div><div class="st-val">${monthAvg > 0 ? fmtNum(monthAvg) : '–'}</div><div class="st-sub">kcal/giorno</div></div>
+  const monthAvg=monthKcals.length>0?Math.round(monthKcals.reduce((a,b)=>a+b,0)/monthKcals.length):0;
+  document.getElementById('monthlyStats').innerHTML=`
+    <div class="stat-tile"><div class="st-label">Media mensile</div><div class="st-val">${monthAvg>0?fmtNum(monthAvg):'–'}</div><div class="st-sub">kcal/giorno</div></div>
     <div class="stat-tile"><div class="st-label">Giorni tracciati</div><div class="st-val">${trackedDays}</div><div class="st-sub">di ${total} giorni</div></div>`;
 }
 
 function showCalDay(dateStr, dayNum) {
-  const day = DB.getDay(dateStr);
-  const t = dayTotals(day);
-  const detail = document.getElementById('calDayDetail');
-  detail.style.display = 'block';
-  document.getElementById('calDayTitle').textContent = dayNum + ' ' + MONTHS[cMonth] + ' — ' + fmtNum(t.kcal) + ' kcal';
-  const items = [...day.meals.map(m => `<div class="meal-item"><div class="meal-left"><div class="mn">${m.type}</div><div class="mm">${m.name}</div></div><div class="meal-kcal">${fmtNum(m.kcal)}</div></div>`),
-    ...day.sport.map(s => `<div class="meal-item"><div class="meal-left"><div class="mn">🏃 ${s.name}</div><div class="mm">${s.duration} min</div></div><div class="meal-kcal sport">–${fmtNum(s.kcal)}</div></div>`)];
-  document.getElementById('calDayMeals').innerHTML = items.join('') || '<div class="empty-state">Nessun dato</div>';
+  const day=DB.getDay(dateStr);
+  const t=dayTotals(day);
+  const detail=document.getElementById('calDayDetail');
+  detail.style.display='block';
+  document.getElementById('calDayTitle').textContent = dayNum+' '+MONTHS[cMonth]+' — '+fmtNum(t.kcal)+' kcal';
+  const items=[
+    ...day.meals.map(m=>`<div class="meal-item"><div class="meal-left"><div class="mn">${m.type}</div><div class="mm">${m.name}</div></div><div class="meal-kcal">${fmtNum(m.kcal)}</div></div>`),
+    ...day.sport.map(s=>`<div class="meal-item"><div class="meal-left"><div class="mn">🏃 ${s.name}</div><div class="mm">${s.duration} min</div></div><div class="meal-kcal sport">–${fmtNum(s.kcal)}</div></div>`)
+  ];
+  document.getElementById('calDayMeals').innerHTML=items.join('')||'<div class="empty-state">Nessun dato</div>';
+}
+
+// ====== FOOD SEARCH ======
+let selectedFoodData = null;
+
+function filterFoods() {
+  const q = document.getElementById('foodSearch').value.toLowerCase().trim();
+  const list = document.getElementById('foodList');
+  if (!q) { list.innerHTML=''; selectedFoodData=null; document.getElementById('calcRes').style.display='none'; return; }
+  const results = FOODS.filter(f => f.name.toLowerCase().includes(q)).slice(0,12);
+  if (results.length===0) { list.innerHTML='<div style="padding:12px 14px;font-size:13px;color:var(--text3)">Nessun risultato</div>'; return; }
+  list.innerHTML = results.map((f,i) => `
+    <div class="food-opt" onclick="selectFood(${FOODS.indexOf(f)})">
+      <span class="fo-name">${f.name}</span>
+      <span class="fo-meta">${f.k} kcal/100g</span>
+    </div>`).join('');
+}
+
+function selectFood(idx) {
+  selectedFoodData = FOODS[idx];
+  document.getElementById('foodSearch').value = selectedFoodData.name;
+  document.getElementById('foodList').innerHTML='';
+  calcMacros();
+}
+
+function calcMacros() {
+  const g = parseFloat(document.getElementById('grams').value);
+  const res = document.getElementById('calcRes');
+  if (!selectedFoodData || !g) { res.style.display='none'; return; }
+  const x = g/100;
+  document.getElementById('rKcal').textContent = Math.round(selectedFoodData.k*x);
+  document.getElementById('rProt').textContent = (selectedFoodData.p*x).toFixed(1)+'g';
+  document.getElementById('rCarb').textContent = (selectedFoodData.c*x).toFixed(1)+'g';
+  document.getElementById('rFat').textContent  = (selectedFoodData.f*x).toFixed(1)+'g';
+  res.style.display='grid';
 }
 
 // ====== ADD MEAL ======
 function resetAddForm() {
-  document.getElementById('foodSel').value = '';
-  document.getElementById('grams').value = '';
-  document.getElementById('mealNameB').value = '';
-  document.getElementById('mealKcalB').value = '';
-  document.getElementById('mealProtB').value = '';
-  document.getElementById('calcRes').style.display = 'none';
+  selectedFoodData=null;
+  document.getElementById('foodSearch').value='';
+  document.getElementById('foodList').innerHTML='';
+  document.getElementById('grams').value='';
+  document.getElementById('mealNameB').value='';
+  document.getElementById('mealKcalB').value='';
+  document.getElementById('mealProtB').value='';
+  document.getElementById('mealNameC').value='';
+  document.getElementById('mealKcalC').value='';
+  document.getElementById('mealProtC').value='';
+  document.getElementById('mealCarbC').value='';
+  document.getElementById('mealFatC').value='';
+  document.getElementById('calcRes').style.display='none';
   switchMode('A');
 }
 
 function switchMode(m) {
-  document.getElementById('tabA').classList.toggle('active', m === 'A');
-  document.getElementById('tabB').classList.toggle('active', m === 'B');
-  document.getElementById('fA').style.display = m === 'A' ? '' : 'none';
-  document.getElementById('fB').style.display = m === 'B' ? '' : 'none';
-}
-
-function calcMacros() {
-  const sel = document.getElementById('foodSel').value;
-  const g = parseFloat(document.getElementById('grams').value);
-  const res = document.getElementById('calcRes');
-  if (!sel || !g) { res.style.display = 'none'; return; }
-  const [k, p, c, f] = sel.split(',').map(Number);
-  const x = g / 100;
-  document.getElementById('rKcal').textContent = Math.round(k * x);
-  document.getElementById('rProt').textContent = (p * x).toFixed(1) + 'g';
-  document.getElementById('rCarb').textContent = (c * x).toFixed(1) + 'g';
-  document.getElementById('rFat').textContent = (f * x).toFixed(1) + 'g';
-  res.style.display = 'grid';
+  ['A','B','C'].forEach(x => {
+    document.getElementById('tab'+x).classList.toggle('active', x===m);
+    document.getElementById('f'+x).style.display = x===m ? '' : 'none';
+  });
 }
 
 function saveMealA() {
-  const sel = document.getElementById('foodSel');
   const g = parseFloat(document.getElementById('grams').value);
   const type = document.getElementById('mealType').value;
-  if (!sel.value || !g) { toast('Seleziona un alimento e i grammi'); return; }
-  const [k, p, c, f] = sel.value.split(',').map(Number);
-  const x = g / 100;
-  const foodName = sel.options[sel.selectedIndex].text;
-  const meal = { id: uid(), type, name: foodName + ' ' + g + 'g', kcal: Math.round(k*x), prot: parseFloat((p*x).toFixed(1)), carb: parseFloat((c*x).toFixed(1)), fat: parseFloat((f*x).toFixed(1)) };
+  if (!selectedFoodData || !g) { toast('Seleziona un alimento e i grammi'); return; }
+  const x = g/100;
+  const meal = { id:uid(), type, name:selectedFoodData.name+' '+g+'g',
+    kcal:Math.round(selectedFoodData.k*x), prot:parseFloat((selectedFoodData.p*x).toFixed(1)),
+    carb:parseFloat((selectedFoodData.c*x).toFixed(1)), fat:parseFloat((selectedFoodData.f*x).toFixed(1)) };
   const day = DB.getDay(TODAY);
   day.meals.push(meal);
   DB.saveDay(TODAY, day);
   toast('Pasto aggiunto ✓');
-  setTimeout(() => goto('home'), 1200);
+  setTimeout(() => goto('home'), 1000);
 }
 
 function saveMealB() {
@@ -854,45 +974,78 @@ function saveMealB() {
   const kcal = parseInt(document.getElementById('mealKcalB').value);
   const prot = parseFloat(document.getElementById('mealProtB').value) || 0;
   const type = document.getElementById('mealTypeB').value;
-  if (!kcal || isNaN(kcal)) { toast('Inserisci le kcal'); return; }
-  const meal = { id: uid(), type, name, kcal, prot, carb: 0, fat: 0 };
+  if (!kcal||isNaN(kcal)) { toast('Inserisci le kcal'); return; }
+  const meal = { id:uid(), type, name, kcal, prot, carb:0, fat:0 };
   const day = DB.getDay(TODAY);
   day.meals.push(meal);
   DB.saveDay(TODAY, day);
   toast('Pasto aggiunto ✓');
-  setTimeout(() => goto('home'), 1200);
+  setTimeout(() => goto('home'), 1000);
 }
 
-function delMeal(id) {
+function saveMealC() {
+  const name = document.getElementById('mealNameC').value.trim() || 'Pasto personalizzato';
+  const kcal = parseInt(document.getElementById('mealKcalC').value);
+  const prot = parseFloat(document.getElementById('mealProtC').value) || 0;
+  const carb = parseFloat(document.getElementById('mealCarbC').value) || 0;
+  const fat  = parseFloat(document.getElementById('mealFatC').value) || 0;
+  const type = document.getElementById('mealTypeC').value;
+  if (!kcal||isNaN(kcal)) { toast('Inserisci le kcal'); return; }
+  const meal = { id:uid(), type, name, kcal, prot, carb, fat };
   const day = DB.getDay(TODAY);
-  day.meals = day.meals.filter(m => m.id !== id);
+  day.meals.push(meal);
   DB.saveDay(TODAY, day);
+  toast('Pasto aggiunto ✓');
+  setTimeout(() => goto('home'), 1000);
+}
+
+function delMeal(id, date) {
+  const day = DB.getDay(date);
+  day.meals = day.meals.filter(m => m.id!==id);
+  DB.saveDay(date, day);
   renderHome();
   toast('Rimosso');
 }
 
 // ====== SPORT ======
+function estimateSportKcal() {
+  const type = document.getElementById('sportType').value;
+  const duration = parseInt(document.getElementById('sportDuration').value) || 0;
+  const est = document.getElementById('sportEstimate');
+  const kcalInput = document.getElementById('sportKcal');
+  if (duration > 0) {
+    const kcalPerMin = SPORT_MET[type] || 6;
+    const estimated = Math.round(kcalPerMin * duration);
+    est.style.display = 'block';
+    est.textContent = `Stima per ${type} ${duration} min ≈ ${estimated} kcal`;
+    if (!kcalInput.value) kcalInput.value = estimated;
+  } else {
+    est.style.display = 'none';
+  }
+}
+
 function saveSport() {
   const type = document.getElementById('sportType').value;
   const duration = parseInt(document.getElementById('sportDuration').value) || 0;
   const kcal = parseInt(document.getElementById('sportKcal').value);
-  if (!kcal || isNaN(kcal)) { toast('Inserisci le kcal bruciate'); return; }
-  const activity = { id: uid(), name: type, duration, kcal };
+  if (!kcal||isNaN(kcal)) { toast('Inserisci le kcal bruciate'); return; }
+  const activity = { id:uid(), name:type, duration, kcal };
   const day = DB.getDay(TODAY);
-  if (!day.sport) day.sport = [];
+  if (!day.sport) day.sport=[];
   day.sport.push(activity);
   DB.saveDay(TODAY, day);
-  document.getElementById('sportDuration').value = '';
-  document.getElementById('sportKcal').value = '';
+  document.getElementById('sportDuration').value='';
+  document.getElementById('sportKcal').value='';
+  document.getElementById('sportEstimate').style.display='none';
   toast('Attività salvata ✓');
   renderSportHistory();
 }
 
-function delSport(id) {
-  const day = DB.getDay(TODAY);
-  day.sport = (day.sport || []).filter(s => s.id !== id);
-  DB.saveDay(TODAY, day);
-  renderHome();
+function delSport(id, date) {
+  const day = DB.getDay(date);
+  day.sport = (day.sport||[]).filter(s => s.id!==id);
+  DB.saveDay(date, day);
+  if (document.getElementById('s-home').classList.contains('active')) renderHome();
   renderSportHistory();
   toast('Rimosso');
 }
@@ -900,24 +1053,26 @@ function delSport(id) {
 function renderSportHistory() {
   const db = DB.get();
   const allSport = [];
-  Object.entries(db.days).sort((a,b) => b[0].localeCompare(a[0])).forEach(([date, day]) => {
-    (day.sport || []).forEach(s => allSport.push({ ...s, date }));
+  Object.entries(db.days).sort((a,b)=>b[0].localeCompare(a[0])).forEach(([date,day]) => {
+    (day.sport||[]).forEach(s => allSport.push({...s, date}));
   });
   const el = document.getElementById('sportHistory');
-  if (allSport.length === 0) {
-    el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Nessuna attività registrata</div>';
+  if (allSport.length===0) {
+    el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Nessuna attività registrata</div>';
     return;
   }
-  el.innerHTML = allSport.slice(0, 20).map(s => `
+  el.innerHTML = allSport.slice(0,20).map(s=>`
     <div class="sport-item">
       <div class="sport-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M4 17l4-4 2 2 3-5 3 4"/></svg></div>
       <div>
         <div style="font-size:14px;font-weight:500">${s.name}</div>
-        <div style="font-size:11px;color:var(--text3)">${fmtDate(s.date)}${s.duration ? ' · ' + s.duration + ' min' : ''}</div>
+        <div style="font-size:11px;color:var(--text3)">${fmtDate(s.date)}${s.duration?' · '+s.duration+' min':''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="sport-kcal">–${s.kcal} kcal</div>
-        <button class="del-btn" onclick="delSport('${s.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+        <button class="del-btn" onclick="delSport('${s.id}','${s.date}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        </button>
       </div>
     </div>`).join('');
 }
@@ -925,22 +1080,29 @@ function renderSportHistory() {
 // ====== SETTINGS ======
 function renderSettings() {
   const s = DB.settings();
-  document.getElementById('settingName').textContent = s.name || 'Giorgio';
+  document.getElementById('nameInput').value = s.name || 'Giorgio';
   document.getElementById('targetInput').value = s.target || 1950;
   const db = DB.get();
   const allDays = Object.keys(db.days);
-  const totalDays = allDays.length;
-  const allKcals = allDays.map(d => dayTotals(db.days[d]).kcal).filter(k => k > 0);
-  const globalAvg = allKcals.length > 0 ? Math.round(allKcals.reduce((a,b)=>a+b,0)/allKcals.length) : 0;
+  const allKcals = allDays.map(d=>dayTotals(db.days[d]).kcal).filter(k=>k>0);
+  const globalAvg = allKcals.length>0 ? Math.round(allKcals.reduce((a,b)=>a+b,0)/allKcals.length) : 0;
   document.getElementById('globalStats').innerHTML = `
-    <div class="settings-row"><div><div class="settings-label">Giorni tracciati</div></div><div class="settings-val">${totalDays}</div></div>
-    <div class="settings-row"><div><div class="settings-label">Media globale</div></div><div class="settings-val">${globalAvg > 0 ? fmtNum(globalAvg) + ' kcal' : '–'}</div></div>
-    <div class="settings-row"><div><div class="settings-label">Pasti totali</div></div><div class="settings-val">${Object.values(db.days).reduce((s,d) => s + (d.meals||[]).length, 0)}</div></div>`;
+    <div class="settings-row"><div><div class="settings-label">Giorni tracciati</div></div><div class="settings-val">${allDays.length}</div></div>
+    <div class="settings-row"><div><div class="settings-label">Media globale</div></div><div class="settings-val">${globalAvg>0?fmtNum(globalAvg)+' kcal':'–'}</div></div>
+    <div class="settings-row"><div><div class="settings-label">Pasti totali</div></div><div class="settings-val">${Object.values(db.days).reduce((s,d)=>s+(d.meals||[]).length,0)}</div></div>`;
+}
+
+function saveName() {
+  const val = document.getElementById('nameInput').value.trim();
+  if (!val) { toast('Inserisci un nome'); return; }
+  DB.saveSettings({ name: val });
+  toast('Nome aggiornato ✓');
+  renderSettings();
 }
 
 function saveTarget() {
   const val = parseInt(document.getElementById('targetInput').value);
-  if (!val || val < 500 || val > 10000) { toast('Target non valido (500–10000)'); return; }
+  if (!val||val<500||val>10000) { toast('Target non valido (500–10000)'); return; }
   DB.saveSettings({ target: val });
   toast('Target aggiornato ✓');
   renderSettings();
